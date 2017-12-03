@@ -96,7 +96,7 @@ drw.add(values,'Undo');
 drw.add(values,'Redo');
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
  sty.close();
- drw.close():
+ drw.close();
  mi.close();
  gui.close();
 }
