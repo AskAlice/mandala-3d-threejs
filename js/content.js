@@ -19,8 +19,6 @@ var isRotating=false;
 var undoHistory = [];
 var redoHistory = [];
 var gui = new dat.GUI();
-mi = gui.addFolder('Mirrors');
-sty = gui.addFolder('Style');
 var values = new function() {
 	this.Mirror = false;
 	this.MirrorRotate = true;
@@ -31,26 +29,37 @@ var values = new function() {
 	this.colorshift = true;
 	this.Cap = "round";
 	this.shiftspeed = 1;
+	this.Help = function(){
+		alert("Touch friendly. Two finger drag to rotate, or hold shift and use the mouse. CTRL+SHIFT+arrows = camera snap translate.")
+	};
 	this.Undo = function(){
+			undoHistory = undoHistory.filter(function(elem, index, self) {
+    			return index === self.indexOf(elem);
+			});
 			console.table(undoHistory)
-			num = undoHistory[undoHistory.length-2];
+			num = undoHistory[1];
 			h = [];
-			for(i=scene.children.length-1;i>=num;i--){
+			for(i=scene.children.length;i>=num;i--){
 				h.unshift(scene.children[i]);
 				scene.remove(scene.children[i]);
 			}	
-			undoHistory.pop();
-			redoHistory.push(h);
+			undoHistory.shift();
+			if(h.length > 0)
+				redoHistory.unshift(h);
+			console.log(redoHistory);
 			
 	}
 	this.Redo = function(){
 			if(redoHistory.length > 0){
-				undoHistory.push(scene.children.length);
-				num = redoHistory[redoHistory.length-1];
-				for(i=0;i<num.length;i++){
+				undoHistory.unshift(scene.children.length);
+				num = redoHistory[0];
+				for(i=0;i<num.length-1;i++){
 					scene.add(num[i]);
 				}	
-				redoHistory.pop();
+				redoHistory.shift();
+				if(undoHistory[0] != scene.children.length)
+					undoHistory.unshift(scene.children.length);
+				console.log(redoHistory)
 			}
 			
 			
@@ -59,14 +68,18 @@ var values = new function() {
 		while(scene.children.length > 0){ 
 	    	scene.remove(scene.children[0]); 
 		}
-		this.undoHistory.length = 0;
-		this.redoHistory.length = 0;
+		redoHistory = [];
 		lastPoint = null;
 		var axesHelper = new THREE.AxesHelper( 999);
 		scene.add( axesHelper );
+		undoHistory = [3];
 	}
 	
 }
+gui.add(values,"Help");
+mi = gui.addFolder('Mirrors');
+sty = gui.addFolder('Style');
+drw = gui.addFolder('Drawing');
 mi.add(values, 'Mirror');
 mi.add(values, 'MirrorRotate');
 mi.add(values, 'Translate');
@@ -78,9 +91,8 @@ sty.add(values, 'shiftspeed', 0.05, 10);
 sty.add(values, 'Width',0.1	,10);
 sty.add(values, 'Cap', ["round","square","butt"]);
 sty.open();
-gui.add(values,'Undo');
-gui.add(values,'Redo');
-gui.add(values,'Clear');
+drw.add(values,'Undo');
+drw.add(values,'Redo');
 function get3dPointZAxis(event)
 {
    camPos = camera.position;
@@ -114,9 +126,15 @@ function stopDraw(event)
 			lastPoint = null;
 			return;
 		}
-	if(controls.enabled) return 
-	if(undoHistory[undoHistory.length-1] != scene.children.length)
-		undoHistory.push(scene.children.length);
+		controls.touchEnd(event);
+
+	if(controls.enabled){ 
+		return 
+
+	}
+	if(undoHistory[0] != scene.children.length)
+		undoHistory.unshift(scene.children.length);
+	redoHistory = [];
     lastPoint = null;
 }
 
@@ -276,8 +294,9 @@ function init() {
 	controls.target = scene.position;
 	controls.rotateSpeed = 0.25;
 	controls.up = true;
-	gui.add(controls,'autoRotate');
-	gui.add(controls,'autoRotateSpeed',0.001,50);
+	drw.add(controls,'autoRotate');
+	drw.add(controls,'autoRotateSpeed',0.001,50);
+	drw.add(values,'Clear');
 	document.addEventListener("keydown", shiftDown, false);
 	document.addEventListener("keyup", shiftUp, false);
 
@@ -332,7 +351,8 @@ function init() {
 
 
 	//
-undoHistory.push(scene.children.length);
+if(undoHistory[0] !=scene.children.length)
+	undoHistory.unshift(scene.children.length);
 
 
 

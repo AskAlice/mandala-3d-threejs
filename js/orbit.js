@@ -58,6 +58,10 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.left = false;
 	this.right = false;
 
+	this.touchEnd = function(event){
+		onTouchEnd(event);
+		}
+
 	// Set to false to disable rotating
 	this.enableRotate = true;
 	this.rotateSpeed = 0.5;
@@ -150,7 +154,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 			// angle from z-axis around y-axis
 			spherical.setFromVector3( offset );
 
-			if ( scope.autoRotate && state === STATE.NONE ) {
+			if ( scope.autoRotate && state != STATE.ROTATE ) {
 
 				rotateLeft( getAutoRotationAngle() );
 
