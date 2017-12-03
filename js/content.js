@@ -20,17 +20,17 @@ var undoHistory = [];
 var redoHistory = [];
 var gui = new dat.GUI();
 var values = new function() {
-	this.Mirror = false;
-	this.MirrorRotate = true;
+	this.Mirror = true;
+	this.MirrorRotate = false;
 	this.Translate = true;
-	this.axes = 8;
+	this.axes = 10;
 	this.Color = 0x0000ff;
 	this.Width = 1;
 	this.colorshift = true;
 	this.Cap = "round";
-	this.shiftspeed = 1;
+	this.shiftspeed = 4;
 	this.Help = function(){
-		alert("Touch friendly. Two finger drag to rotate, or hold shift and use the mouse. CTRL+SHIFT+arrows = camera snap translate.")
+		alert("Touch friendly. Two finger drag to rotate, or hold shift and use the mouse. CTRL+SHIFT+arrows = camera snap translate. Disable chrome://flags/#overscroll-history-navigation for better touch experience")
 	};
 	this.Undo = function(){
 			undoHistory = undoHistory.filter(function(elem, index, self) {
@@ -296,6 +296,7 @@ function init() {
 	controls.rotateSpeed = 0.25;
 	controls.up = true;
 	drw.add(controls,'autoRotate');
+	controls.autoRotateSpeed = 7;
 	drw.add(controls,'autoRotateSpeed',0.001,50);
 	drw.add(values,'Clear');
 	document.addEventListener("keydown", shiftDown, false);
