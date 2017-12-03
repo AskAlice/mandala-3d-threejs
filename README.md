@@ -1,3 +1,3 @@
-demo: [https://askalice.me/mandala/]
+demo: https://askalice.me/mandala/
 
 three.js, dat.gui.js
