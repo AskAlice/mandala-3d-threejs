@@ -33,20 +33,27 @@ var values = new function() {
 		alert("Touch friendly. Two finger drag to rotate, or hold shift and use the mouse. CTRL+SHIFT+arrows = camera snap translate. Disable chrome://flags/#overscroll-history-navigation for better touch experience")
 	};
 	this.Undo = function(){
+		if(undoHistory.length > 0){
 			undoHistory = undoHistory.filter(function(elem, index, self) {
     			return index === self.indexOf(elem);
 			});
+			if(scene.children.length < 5 && redoHistory.length > 0){
+				this.Redo();
+				return;
+			}
 			console.table(undoHistory)
 			num = undoHistory[1];
 			h = [];
 			for(i=scene.children.length;i>=num;i--){
 				h.unshift(scene.children[i]);
 				scene.remove(scene.children[i]);
-			}	
-			undoHistory.shift();
+			}
+			if(undoHistory[0] > 2 && scene.children.length > 2)
+				undoHistory.shift();
 			if(h.length > 0)
 				redoHistory.unshift(h);
 			console.log(redoHistory);
+		}
 			
 	}
 	this.Redo = function(){
@@ -65,10 +72,12 @@ var values = new function() {
 			
 	}
 	this.Clear = function(){
+			h = [];
 		while(scene.children.length > 0){ 
 	    	scene.remove(scene.children[0]); 
+	    	h.unshift(scene.children[0]);
 		}
-		redoHistory = [];
+		redoHistory.unshift(h);
 		lastPoint = null;
 		var axesHelper = new THREE.AxesHelper( 999);
 		scene.add( axesHelper );
