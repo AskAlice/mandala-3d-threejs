@@ -91,6 +91,7 @@ sty.add(values, 'shiftspeed', 0.05, 10);
 sty.add(values, 'Width',0.1	,10);
 sty.add(values, 'Cap', ["round","square","butt"]);
 sty.open();
+drw.open();
 drw.add(values,'Undo');
 drw.add(values,'Redo');
 function get3dPointZAxis(event)
