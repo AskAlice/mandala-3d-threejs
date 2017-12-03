@@ -16,6 +16,8 @@ var camera, scene, projector, renderer;
 var particleMaterial;
 var objects = [];
 var isRotating=false;
+var undoHistory = [];
+var redoHistory = [];
 var gui = new dat.GUI();
 mi = gui.addFolder('Mirrors');
 sty = gui.addFolder('Style');
@@ -29,10 +31,36 @@ var values = new function() {
 	this.colorshift = true;
 	this.Cap = "round";
 	this.shiftspeed = 1;
+	this.Undo = function(){
+			console.table(undoHistory)
+			num = undoHistory[undoHistory.length-2];
+			h = [];
+			for(i=scene.children.length-1;i>=num;i--){
+				h.unshift(scene.children[i]);
+				scene.remove(scene.children[i]);
+			}	
+			undoHistory.pop();
+			redoHistory.push(h);
+			
+	}
+	this.Redo = function(){
+			if(redoHistory.length > 0){
+				undoHistory.push(scene.children.length);
+				num = redoHistory[redoHistory.length-1];
+				for(i=0;i<num.length;i++){
+					scene.add(num[i]);
+				}	
+				redoHistory.pop();
+			}
+			
+			
+	}
 	this.Clear = function(){
 		while(scene.children.length > 0){ 
 	    	scene.remove(scene.children[0]); 
 		}
+		this.undoHistory.length = 0;
+		this.redoHistory.length = 0;
 		lastPoint = null;
 		var axesHelper = new THREE.AxesHelper( 999);
 		scene.add( axesHelper );
@@ -50,6 +78,8 @@ sty.add(values, 'shiftspeed', 0.05, 10);
 sty.add(values, 'Width',0.1	,10);
 sty.add(values, 'Cap', ["round","square","butt"]);
 sty.open();
+gui.add(values,'Undo');
+gui.add(values,'Redo');
 gui.add(values,'Clear');
 function get3dPointZAxis(event)
 {
@@ -85,6 +115,8 @@ function stopDraw(event)
 			return;
 		}
 	if(controls.enabled) return 
+	if(undoHistory[undoHistory.length-1] != scene.children.length)
+		undoHistory.push(scene.children.length);
     lastPoint = null;
 }
 
@@ -183,7 +215,7 @@ function doDraw(event)
         	}
         	
 
-            lastPoint = pos;        
+            lastPoint = pos;     
         }
         else
         {
@@ -191,30 +223,6 @@ function doDraw(event)
                         pos.x.toString() + ':' + pos.y.toString()  + ':' + pos.z.toString());
         }
     }
-}
-function doDrawt(event){
-	if(event.target.tagName != 'CANVAS')
-		{
-			event.preventDefault();
-			return;
-		}
-	event.y = event.touches[0].pageY;
-	event.x = event.touches[0].pageX;
-	if(event.x != null)
-			doDraw(event);
-		
-}
-function startDrawt(event){
-	if(event.target.tagName != 'CANVAS')
-		{
-			event.preventDefault();
-			return;
-		}
-	event.y = event.touches[0].pageY;
-	event.x = event.touches[0].pageX;
-	
-	if(event.x != null)
-			startDraw(event);
 }
 
 function onTouchEvent( event ) {
@@ -324,7 +332,7 @@ function init() {
 
 
 	//
-
+undoHistory.push(scene.children.length);
 
 
 
@@ -336,5 +344,15 @@ function animate() {
 	controls.update();
 
 	renderer.render( scene, camera );
+
+}
+window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize(){
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
 
 }

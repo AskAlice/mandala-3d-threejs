@@ -2,7 +2,9 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>3d mandala</title>
+    <meta name="author" content="Alice Knag"/>
   </head>
   <body>
     <style>
@@ -17,14 +19,6 @@
     }
     .dg.ac { position: fixed; top: 5px; left: 5px; right:auto; }
   </style>
-
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-      const {webFrame} = require('electron')
-webFrame.setZoomLevelLimits(1,1)
-
-    </script>
     <script src="js/three.min.js"></script>
     <script src="js/dat.gui.min.js"></script>
     <script src="js/orbit.js"></script>
