@@ -131,10 +131,6 @@ var m2 = new THREE.Vector3(0,0,0);
 var pos = camPos.clone(); 
 var p2 = camPos.clone();
 pos.add(mv.sub(camPos).normalize().multiplyScalar(m2.distanceTo(camPos)));
-console.log("point")
-console.table(point)
-console.log("pos")
-console.table(pos)
 var p = new THREE.Vector3(point.x,point.y,point.z)
 if(values['MousePointMode'] == true)
 	return p;
