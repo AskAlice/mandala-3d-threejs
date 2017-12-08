@@ -29,6 +29,7 @@ var values = new function() {
 	this.colorshift = true;
 	this.Cap = "round";
 	this.shiftspeed = 4;
+	this.MousePointMode = true;
 	this.Help = function(){
 		alert("Touch friendly. Two finger drag to rotate, or hold shift and use the mouse. CTRL+SHIFT+arrows = camera snap translate. Disable chrome://flags/#overscroll-history-navigation for better touch experience")
 	};
@@ -103,25 +104,42 @@ sty.open();
 drw.open();
 drw.add(values,'Undo');
 drw.add(values,'Redo');
+drw.add(values, 'MousePointMode')
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
  sty.close();
  drw.close();
  mi.close();
  gui.close();
 }
-function get3dPointZAxis(event)
-{
-   camPos = camera.position;
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+var plane = new THREE.Plane();
+var planeNormal = new THREE.Vector3();
+var point = new THREE.Vector3();
+
+
+function get3dPointZAxis(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  planeNormal.copy(camera.position).normalize();
+  plane.setFromNormalAndCoplanarPoint(planeNormal, scene.position);
+  raycaster.setFromCamera(mouse, camera);
+  raycaster.ray.intersectPlane(plane, point);
+     camPos = camera.position;
 var mv = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY/window.innerHeight) * 2 + 1, 1).unproject(camera);
 var m2 = new THREE.Vector3(0,0,0);
 var pos = camPos.clone(); 
 var p2 = camPos.clone();
-p2.x = -p2.x;
-p2.y = 0;
-p2.z = 0;
-
 pos.add(mv.sub(camPos).normalize().multiplyScalar(m2.distanceTo(camPos)));
-return pos;
+console.log("point")
+console.table(point)
+console.log("pos")
+console.table(pos)
+var p = new THREE.Vector3(point.x,point.y,point.z)
+if(values['MousePointMode'] == true)
+	return p;
+else
+	return pos;
 }
 
 function startDraw(event)
